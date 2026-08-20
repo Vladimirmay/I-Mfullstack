@@ -1,0 +1,23 @@
+{
+  "name": "i-mfullstack",
+  "version": "1.0.0",
+  "description": "Репозиторий моего маленького роудмэпа по основам бэкенда",
+  "homepage": "https://github.com/Vladimirmay/I-Mfullstack#readme",
+  "bugs": {
+    "url": "https://github.com/Vladimirmay/I-Mfullstack/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vladimirmay/I-Mfullstack.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
