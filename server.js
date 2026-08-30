@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const mongoose = require("mongoose");
 const moviesRouter = require("./routes/movies");
 const categoriesRouter = require("./routes/categories");
@@ -8,6 +9,14 @@ const port = 3000;
 
 const url = "mongodb://localhost:27017/main";
 mongoose.connect(url);
+
+const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+  }),
+);
 
 app.use(express.json());
 app.use(moviesRouter);
