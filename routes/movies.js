@@ -3,7 +3,8 @@ const {
   createMovie,
   deleteMovie,
   updateMovie,
-  addComment,
+  getMovies,
+  getMovie,
 } = require("../services/movieService");
 
 const router = express.Router();
@@ -17,14 +18,23 @@ router.post("/movies", async (req, res) => {
   }
 });
 
-router.delete("/movies/:movieId", async (req, res) => {
+router.get("/movies", async (req, res) => {
   try {
-    const deletedMovie = await deleteMovie(req.params.movieId);
+    const movies = await getMovies();
+    return res.status(200).send(movies);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+});
 
-    if (!deletedMovie) {
+router.get("/movies/:movieId", async (req, res) => {
+  try {
+    const movie = await getMovie(req.params.movieId);
+
+    if (!movie) {
       return res.status(404).send("movie not found");
     }
-    return res.status(204).send();
+    return res.status(200).send(movie);
   } catch (error) {
     return res.status(500).send(error.message);
   }
@@ -46,15 +56,14 @@ router.put("/movies/:movieId", async (req, res) => {
   }
 });
 
-router.post("/movies/:movieId/comments/", async (req, res) => {
+router.delete("/movies/:movieId", async (req, res) => {
   try {
-    const resultComment = await addComment(req.params.movieId, req.body);
+    const deletedMovie = await deleteMovie(req.params.movieId);
 
-    if (!resultComment) {
+    if (!deletedMovie) {
       return res.status(404).send("movie not found");
     }
-
-    return res.status(201).send("comment created");
+    return res.status(204).send();
   } catch (error) {
     return res.status(500).send(error.message);
   }
