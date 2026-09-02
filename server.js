@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -6,9 +7,9 @@ const categoriesRouter = require("./routes/categories");
 const commentsRouter = require("./routes/comments");
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT_CONNECTION;
 
-const url = "mongodb://localhost:27017/main";
+const url = process.env.URL_CONNECTION_DB;
 mongoose.connect(url);
 
 const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
