@@ -6,10 +6,11 @@ const {
   getMovies,
   getMovie,
 } = require("../services/movieService");
+const validate = require("../middleware/validate");
 
 const router = express.Router();
 
-router.post("/movies", async (req, res) => {
+router.post("/movies", validate(["title", "year", "director"]), async (req, res) => {
   try {
     await createMovie(req.body); // добавляем документ
     return res.status(201).send("movie created"); // возвращаем ответ

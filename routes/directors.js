@@ -1,35 +1,38 @@
 const express = require("express");
 const {
-  addDirector,
+  createDirector,
+  getDirectors,
   getDirector,
-  deleteDirector,
   updateDirector,
+  deleteDirector,
 } = require("../services/directorsService");
 
 const router = express.Router();
 
-router.post("/movies/:movieId/directors/", async (req, res) => {
+router.post("/directors", async (req, res) => {
   try {
-    const result = await addDirector(req.params.movieId, req.body);
-
-    if (result === null) {
-      return res.status(404).send("movie not found");
-    }
-    if (result === "conflict") {
-      return res.status(409).send("movie already has a director");
-    }
-
+    await createDirector(req.body);
     return res.status(201).send("director created");
   } catch (error) {
     return res.status(500).send(error.message);
   }
 });
 
-router.get("/movies/:movieId/directors/", async (req, res) => {
+router.get("/directors", async (req, res) => {
   try {
-    const director = await getDirector(req.params.movieId);
+    const directors = await getDirectors();
+    return res.status(200).send(directors);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+});
+
+router.get("/directors/:directorId", async (req, res) => {
+  try {
+    const director = await getDirector(req.params.directorId);
+
     if (!director) {
-      return res.status(404).send("movie not found");
+      return res.status(404).send("director not found");
     }
     return res.status(200).send(director);
   } catch (error) {
@@ -37,7 +40,7 @@ router.get("/movies/:movieId/directors/", async (req, res) => {
   }
 });
 
-router.put("/movies/:movieId/directors/:directorId", async (req, res) => {
+router.put("/directors/:directorId", async (req, res) => {
   try {
     const updatedDirector = await updateDirector(req.params.directorId, req.body, {
       new: true,
@@ -53,15 +56,12 @@ router.put("/movies/:movieId/directors/:directorId", async (req, res) => {
   }
 });
 
-router.delete("/movies/:movieId/directors/:directorId", async (req, res) => {
+router.delete("/directors/:directorId", async (req, res) => {
   try {
-    const deletedDirector = await deleteDirector(
-      req.params.movieId,
-      req.params.directorId,
-    );
+    const deletedDirector = await deleteDirector(req.params.directorId);
 
     if (!deletedDirector) {
-      return res.status(404).send("Director not found");
+      return res.status(404).send("director not found");
     }
     return res.status(204).send();
   } catch (error) {

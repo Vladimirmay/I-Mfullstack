@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const moviesRouter = require("./routes/movies");
 const categoriesRouter = require("./routes/categories");
 const commentsRouter = require("./routes/comments");
+const directorsRouter = require("./routes/directors");
 
 const app = express();
 const port = process.env.PORT_CONNECTION;
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use(moviesRouter);
 app.use(categoriesRouter);
 app.use(commentsRouter);
+app.use(directorsRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
