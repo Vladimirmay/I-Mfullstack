@@ -6,67 +6,86 @@ const {
   updateCategory,
   deleteCategory,
 } = require("../services/categoriesService");
+const { handleValidationErrors, asyncHandler } = require("../utils/validationError");
+const { body, param } = require("express-validator");
 
 const router = express.Router();
 
-router.post("/categories", async (req, res) => {
-  try {
-    await createCategory(req.body);
-    return res.status(201).send("category created");
-  } catch (error) {
-    return res.status(500).send(error.message);
-  }
+const createCategoryHandler = asyncHandler(async (req, res) => {
+  await createCategory(req.body);
+  return res.status(201).send("category created");
 });
 
-router.get("/categories", async (req, res) => {
-  try {
-    const categories = await getCategories();
-    return res.status(200).send(categories);
-  } catch (error) {
-    return res.status(500).send(error.message);
-  }
+const getCategoriesHandler = asyncHandler(async (req, res) => {
+  const categories = await getCategories();
+  return res.status(200).send(categories);
 });
 
-router.get("/categories/:categoryId", async (req, res) => {
-  try {
-    const category = await getCategory(req.params.categoryId);
+const getCategoryHandler = asyncHandler(async (req, res) => {
+  const category = await getCategory(req.params.categoryId);
 
-    if (!category) {
-      return res.status(404).send("category not found");
-    }
-    return res.status(200).send(category);
-  } catch (error) {
-    return res.status(500).send(error.message);
+  if (!category) {
+    return res.status(404).send("category not found");
   }
+  return res.status(200).send(category);
 });
 
-router.put("/categories/:categoryId", async (req, res) => {
-  try {
-    const updatedCategory = await updateCategory(req.params.categoryId, req.body, {
-      new: true,
-    });
+const updateCategoryHandler = asyncHandler(async (req, res) => {
+  const updatedCategory = await updateCategory(req.params.categoryId, req.body, {
+    new: true,
+  });
 
-    if (!updatedCategory) {
-      return res.status(404).send("category not found");
-    }
-
-    return res.status(200).send(updatedCategory);
-  } catch (error) {
-    return res.status(500).send(error.message);
+  if (!updatedCategory) {
+    return res.status(404).send("category not found");
   }
+
+  return res.status(200).send(updatedCategory);
 });
 
-router.delete("/categories/:categoryId", async (req, res) => {
-  try {
-    const deletedCategory = await deleteCategory(req.params.categoryId);
+const deleteCategoryHandler = asyncHandler(async (req, res) => {
+  const deletedCategory = await deleteCategory(req.params.categoryId);
 
-    if (!deletedCategory) {
-      return res.status(404).send("category not found");
-    }
-    return res.status(204).send();
-  } catch (error) {
-    return res.status(500).send(error.message);
+  if (!deletedCategory) {
+    return res.status(404).send("category not found");
   }
+  return res.status(204).send();
 });
+
+const categoryValidationRules = {
+  post: [body("title").notEmpty()],
+  put: [param("categoryId").isMongoId(), body("title").optional().notEmpty()],
+  get: param("categoryId").isMongoId(),
+  delete: param("categoryId").isMongoId(),
+};
+
+router.post(
+  "/categories",
+  categoryValidationRules.post,
+  handleValidationErrors,
+  createCategoryHandler,
+);
+
+router.get("/categories", getCategoriesHandler);
+
+router.get(
+  "/categories/:categoryId",
+  categoryValidationRules.get,
+  handleValidationErrors,
+  getCategoryHandler,
+);
+
+router.put(
+  "/categories/:categoryId",
+  categoryValidationRules.put,
+  handleValidationErrors,
+  updateCategoryHandler,
+);
+
+router.delete(
+  "/categories/:categoryId",
+  categoryValidationRules.delete,
+  handleValidationErrors,
+  deleteCategoryHandler,
+);
 
 module.exports = router;

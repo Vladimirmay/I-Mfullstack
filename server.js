@@ -27,6 +27,13 @@ app.use(categoriesRouter);
 app.use(commentsRouter);
 app.use(directorsRouter);
 
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(err.status || 500).json({
+    message: err.status ? err.message : "Что-то пошло не так",
+  });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

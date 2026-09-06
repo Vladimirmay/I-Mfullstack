@@ -6,68 +6,92 @@ const {
   getMovies,
   getMovie,
 } = require("../services/movieService");
-const validate = require("../middleware/validate");
+
+const { handleValidationErrors, asyncHandler } = require("../utils/validationError");
+const { body, param } = require("express-validator");
 
 const router = express.Router();
 
-router.post("/movies", validate(["title", "year", "director"]), async (req, res) => {
-  try {
-    await createMovie(req.body); // добавляем документ
-    return res.status(201).send("movie created"); // возвращаем ответ
-  } catch (error) {
-    return res.status(500).send(error.message); // возвращаем ошибку с кодом
-  }
+const createMovieHandler = asyncHandler(async (req, res) => {
+  await createMovie(req.body);
+  return res.status(201).send("movie created");
 });
 
-router.get("/movies", async (req, res) => {
-  try {
-    const movies = await getMovies();
-    return res.status(200).send(movies);
-  } catch (error) {
-    return res.status(500).send(error.message);
-  }
+const getMoviesHandler = asyncHandler(async (req, res) => {
+  const movies = await getMovies();
+  return res.status(200).send(movies);
 });
 
-router.get("/movies/:movieId", async (req, res) => {
-  try {
-    const movie = await getMovie(req.params.movieId);
+const getMovieHandler = asyncHandler(async (req, res) => {
+  const movie = await getMovie(req.params.movieId);
 
-    if (!movie) {
-      return res.status(404).send("movie not found");
-    }
-    return res.status(200).send(movie);
-  } catch (error) {
-    return res.status(500).send(error.message);
+  if (!movie) {
+    return res.status(404).send("movie not found");
   }
+  return res.status(200).send(movie);
 });
 
-router.put("/movies/:movieId", async (req, res) => {
-  try {
-    const updatedMovie = await updateMovie(req.params.movieId, req.body, {
-      new: true,
-    });
+const updateMovieHandler = asyncHandler(async (req, res) => {
+  const updatedMovie = await updateMovie(req.params.movieId, req.body, {
+    new: true,
+  });
 
-    if (!updatedMovie) {
-      return res.status(404).send("movie not found");
-    }
-
-    return res.status(200).send(updatedMovie);
-  } catch (error) {
-    return res.status(500).send(error.message);
+  if (!updatedMovie) {
+    return res.status(404).send("movie not found");
   }
+
+  return res.status(200).send(updatedMovie);
 });
 
-router.delete("/movies/:movieId", async (req, res) => {
-  try {
-    const deletedMovie = await deleteMovie(req.params.movieId);
+const deleteMovieHandler = asyncHandler(async (req, res) => {
+  const deletedMovie = await deleteMovie(req.params.movieId);
 
-    if (!deletedMovie) {
-      return res.status(404).send("movie not found");
-    }
-    return res.status(204).send();
-  } catch (error) {
-    return res.status(500).send(error.message);
+  if (!deletedMovie) {
+    return res.status(404).send("movie not found");
   }
+  return res.status(204).send();
 });
+
+const movieValidationRules = {
+  post: [body("title").notEmpty(), body("year").isNumeric(), body("director").notEmpty()],
+  patch: [
+    param("movieId").isMongoId(),
+    body("title").optional().notEmpty(),
+    body("year").optional().isNumeric(),
+    body("director").optional().notEmpty(),
+  ],
+  get: param("movieId").isMongoId(),
+  delete: param("movieId").isMongoId(),
+};
+
+router.post(
+  "/movies",
+  movieValidationRules.post,
+  handleValidationErrors,
+  createMovieHandler,
+);
+
+router.get("/movies", getMoviesHandler);
+
+router.get(
+  "/movies/:movieId",
+  movieValidationRules.get,
+  handleValidationErrors,
+  getMovieHandler,
+);
+
+router.patch(
+  "/movies/:movieId",
+  movieValidationRules.patch,
+  handleValidationErrors,
+  updateMovieHandler,
+);
+
+router.delete(
+  "/movies/:movieId",
+  movieValidationRules.delete,
+  handleValidationErrors,
+  deleteMovieHandler,
+);
 
 module.exports = router;
