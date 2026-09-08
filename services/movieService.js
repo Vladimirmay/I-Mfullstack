@@ -1,4 +1,5 @@
 const { Movie } = require("../models");
+const mongoose = require("mongoose");
 
 const getMovies = () => {
   return Movie.find()
@@ -24,10 +25,38 @@ const deleteMovie = (movieId) => {
   return Movie.findByIdAndDelete(movieId);
 };
 
+const countMoviesByDirector = (directorId) => {
+  return Movie.aggregate([
+    {
+      $match: {
+        director: new mongoose.Types.ObjectId(directorId),
+      },
+    },
+    { $count: "total" },
+  ]);
+};
+
+const countMoviesByYearRange = (from, to) => {
+  return Movie.aggregate([
+    {
+      $match: {
+        year: {
+          $gte: Number(from),
+          $lte: Number(to),
+        },
+      },
+    },
+    { $count: "total" },
+  ]);
+};
+
 module.exports = {
   createMovie,
   deleteMovie,
   updateMovie,
   getMovies,
   getMovie,
+
+  countMoviesByDirector,
+  countMoviesByYearRange,
 };

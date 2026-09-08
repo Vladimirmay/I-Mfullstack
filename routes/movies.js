@@ -5,6 +5,8 @@ const {
   updateMovie,
   getMovies,
   getMovie,
+  countMoviesByDirector,
+  countMoviesByYearRange,
 } = require("../services/movieService");
 
 const { handleValidationErrors, asyncHandler } = require("../utils/validationError");
@@ -93,5 +95,19 @@ router.delete(
   handleValidationErrors,
   deleteMovieHandler,
 );
+
+const countMoviesByDirectorHandler = asyncHandler(async (req, res) => {
+  const result = await countMoviesByDirector(req.params.directorId);
+  return res.status(200).send(result);
+});
+
+router.get("/movies/count/by-director/:directorId", countMoviesByDirectorHandler);
+
+const countMoviesByYearRangeHandler = asyncHandler(async (req, res) => {
+  const result = await countMoviesByYearRange(req.query.from, req.query.to);
+  return res.status(200).send(result);
+});
+
+router.get("/movies/count/by-year", countMoviesByYearRangeHandler);
 
 module.exports = router;
