@@ -17,7 +17,8 @@ const createCategoryHandler = asyncHandler(async (req, res) => {
 });
 
 const getCategoriesHandler = asyncHandler(async (req, res) => {
-  const categories = await getCategories();
+  const { sort } = req.query;
+  const categories = await getCategories(sort);
   return res.status(200).send(categories);
 });
 

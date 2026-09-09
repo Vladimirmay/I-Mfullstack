@@ -20,7 +20,8 @@ const createMovieHandler = asyncHandler(async (req, res) => {
 });
 
 const getMoviesHandler = asyncHandler(async (req, res) => {
-  const movies = await getMovies();
+  const { title, category, sort } = req.query;
+  const movies = await getMovies({ filters: { title, category }, sort });
   return res.status(200).send(movies);
 });
 

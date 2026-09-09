@@ -4,8 +4,14 @@ const createCategory = (body) => {
   return Category.create(body);
 };
 
-const getCategories = () => {
-  return Category.find().lean();
+const getCategories = (sort) => {
+  const query = Category.find();
+
+  if (sort) {
+    query.sort(sort);
+  }
+
+  return query.lean().exec();
 };
 
 const getCategory = (categoryId) => {

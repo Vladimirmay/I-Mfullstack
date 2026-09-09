@@ -1,10 +1,23 @@
 const { Movie } = require("../models");
 const mongoose = require("mongoose");
 
-const getMovies = () => {
-  return Movie.find()
+const getMovies = ({ filters, sort }) => {
+  const query = Movie.find();
+
+  if (filters.title) {
+    query.where("title", filters.title);
+  }
+  if (filters.category) {
+    query.where("category", filters.category);
+  }
+  if (sort) {
+    query.sort(sort);
+  }
+
+  return query
     .populate([{ path: "category" }, { path: "director" }, { path: "comments" }])
-    .lean();
+    .lean()
+    .exec();
 };
 
 const getMovie = (movieId) => {
