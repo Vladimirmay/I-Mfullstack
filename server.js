@@ -6,6 +6,7 @@ const moviesRouter = require("./routes/movies");
 const categoriesRouter = require("./routes/categories");
 const commentsRouter = require("./routes/comments");
 const directorsRouter = require("./routes/directors");
+const mongoSanitize = require("express-mongo-sanitize");
 
 const app = express();
 const port = process.env.PORT_CONNECTION;
@@ -26,6 +27,7 @@ app.use(moviesRouter);
 app.use(categoriesRouter);
 app.use(commentsRouter);
 app.use(directorsRouter);
+app.use(mongoSanitize());
 
 app.use((err, req, res, next) => {
   console.error(err);

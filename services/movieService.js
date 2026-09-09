@@ -5,7 +5,7 @@ const getMovies = ({ filters, sort }) => {
   const query = Movie.find();
 
   if (filters.title) {
-    query.where("title", filters.title);
+    query.where("title", String(filters.title));
   }
   if (filters.category) {
     query.where("category", filters.category);
