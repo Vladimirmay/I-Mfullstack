@@ -11,17 +11,28 @@ const {
 
 const { handleValidationErrors, asyncHandler } = require("../utils/validationError");
 const { body, param } = require("express-validator");
+const NodeCache = require("node-cache");
+const myCache = new NodeCache();
 
 const router = express.Router();
 
 const createMovieHandler = asyncHandler(async (req, res) => {
   await createMovie(req.body);
+  myCache.flushAll();
   return res.status(201).send("movie created");
 });
 
 const getMoviesHandler = asyncHandler(async (req, res) => {
   const { title, category, sort } = req.query;
+  const cacheKey = JSON.stringify(req.query);
+
+  const cachedMovies = myCache.get(cacheKey);
+  if (cachedMovies) {
+    return res.status(200).send(cachedMovies);
+  }
+
   const movies = await getMovies({ filters: { title, category }, sort });
+  myCache.set(cacheKey, movies);
   return res.status(200).send(movies);
 });
 
@@ -43,6 +54,7 @@ const updateMovieHandler = asyncHandler(async (req, res) => {
     return res.status(404).send("movie not found");
   }
 
+  myCache.flushAll();
   return res.status(200).send(updatedMovie);
 });
 
@@ -52,6 +64,8 @@ const deleteMovieHandler = asyncHandler(async (req, res) => {
   if (!deletedMovie) {
     return res.status(404).send("movie not found");
   }
+
+  myCache.flushAll();
   return res.status(204).send();
 });
 
