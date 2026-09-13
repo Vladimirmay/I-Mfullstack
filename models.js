@@ -30,7 +30,7 @@ const UserSchema = new Schema({
   email: String,
   username: String,
   roles: [String],
-  password: String,
+  password: { type: String, required: true, select: false },
 });
 
 const Category = model("Category", CategoriesSchema);

@@ -1,4 +1,4 @@
-const { User } = require("../models");
+const { loginUser } = require("../services/authService");
 
 const authenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -9,7 +9,7 @@ const authenticate = async (req, res, next) => {
 
   const [email, password] = authHeader.split(" ");
 
-  const user = await User.findOne({ email, password });
+  const user = await loginUser(email, password);
 
   if (!user) {
     return res.status(401).send("invalid credentials");

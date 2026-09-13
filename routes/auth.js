@@ -14,9 +14,11 @@ const profileHandler = asyncHandler(async (req, res) => {
 const loginUserHandler = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const login = await loginUser(email, password);
+
   if (!login) {
-    return res.status(401).send("invalid credentials");
+    return res.status(401).send("Неверная почта или пароль");
   }
+
   return res.status(200).send(`${email} ${password}`);
 });
 

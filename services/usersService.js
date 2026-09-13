@@ -1,7 +1,11 @@
+const bcrypt = require("bcrypt");
 const { User } = require("../models");
 
-const createUser = (body) => {
-  return User.create(body);
+const SALT_ROUNDS = 10;
+
+const createUser = async (body) => {
+  const passwordHash = await bcrypt.hash(body.password, SALT_ROUNDS);
+  return User.create({ ...body, password: passwordHash });
 };
 
 const getUsers = () => {
