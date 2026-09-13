@@ -7,6 +7,7 @@ const categoriesRouter = require("./routes/categories");
 const commentsRouter = require("./routes/comments");
 const directorsRouter = require("./routes/directors");
 const usersRouter = require("./routes/users");
+const authRouter = require("./routes/auth");
 const mongoSanitize = require("express-mongo-sanitize");
 
 const app = express();
@@ -29,6 +30,7 @@ app.use(categoriesRouter);
 app.use(commentsRouter);
 app.use(directorsRouter);
 app.use(usersRouter);
+app.use(authRouter);
 app.use(mongoSanitize());
 
 app.use((err, req, res, next) => {
