@@ -26,18 +26,28 @@ const CommentsSchema = new Schema({
   createdAt: Date,
 });
 
+const UserSchema = new Schema({
+  email: String,
+  username: String,
+  roles: [String],
+  password: String,
+});
+
 const Category = model("Category", CategoriesSchema);
 const Movie = model("Movie", MovieSchema);
 const Director = model("Director", DirectorSchema);
 const Comments = model("Comments", CommentsSchema);
+const User = model("User", UserSchema);
 
 module.exports = {
   MovieSchema,
   CategoriesSchema,
   DirectorSchema,
   CommentsSchema,
+  UserSchema,
   Category,
   Movie,
   Director,
   Comments,
+  User,
 };
