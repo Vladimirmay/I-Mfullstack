@@ -33,7 +33,7 @@ app.use(usersRouter);
 app.use(authRouter);
 app.use(mongoSanitize());
 
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error(err);
   res.status(err.status || 500).json({
     message: err.status ? err.message : "Что-то пошло не так",

@@ -1,5 +1,10 @@
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const { User } = require("../models");
+
+const generateToken = (email) => {
+  return jwt.sign({ email }, process.env.JWT_SECRET);
+};
 
 const loginUser = async (email, password) => {
   const user = await User.findOne({ email }).select("+password");
@@ -19,4 +24,5 @@ const loginUser = async (email, password) => {
 
 module.exports = {
   loginUser,
+  generateToken,
 };

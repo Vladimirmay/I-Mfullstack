@@ -1,11 +1,13 @@
 const bcrypt = require("bcrypt");
 const { User } = require("../models");
+const { generateToken } = require("./authService");
 
 const SALT_ROUNDS = 10;
 
 const createUser = async (body) => {
   const passwordHash = await bcrypt.hash(body.password, SALT_ROUNDS);
-  return User.create({ ...body, password: passwordHash });
+  const jwtToken = generateToken(body.email);
+  return User.create({ ...body, password: passwordHash, token: jwtToken });
 };
 
 const getUsers = () => {
