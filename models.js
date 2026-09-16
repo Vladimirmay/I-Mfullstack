@@ -31,6 +31,7 @@ const UserSchema = new Schema({
   username: String,
   roles: [String],
   password: { type: String, required: true, select: false },
+  favorites: { type: [{ type: "ObjectId", ref: "Movie" }], default: [] },
   token: String,
 });
 
