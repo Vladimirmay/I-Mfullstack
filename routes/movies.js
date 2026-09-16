@@ -12,6 +12,8 @@ const {
 const { handleValidationErrors, asyncHandler } = require("../utils/validationError");
 const { body, param } = require("express-validator");
 const NodeCache = require("node-cache");
+const passport = require("passport");
+const requireAdmin = require("../middleware/requireAdmin");
 const myCache = new NodeCache();
 
 const router = express.Router();
@@ -83,6 +85,8 @@ const movieValidationRules = {
 
 router.post(
   "/movies",
+  passport.authenticate("bearer", { session: false }),
+  requireAdmin,
   movieValidationRules.post,
   handleValidationErrors,
   createMovieHandler,
@@ -99,6 +103,8 @@ router.get(
 
 router.patch(
   "/movies/:movieId",
+  passport.authenticate("bearer", { session: false }),
+  requireAdmin,
   movieValidationRules.patch,
   handleValidationErrors,
   updateMovieHandler,
@@ -106,6 +112,8 @@ router.patch(
 
 router.delete(
   "/movies/:movieId",
+  passport.authenticate("bearer", { session: false }),
+  requireAdmin,
   movieValidationRules.delete,
   handleValidationErrors,
   deleteMovieHandler,

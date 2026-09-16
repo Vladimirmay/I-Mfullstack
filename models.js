@@ -22,7 +22,7 @@ const DirectorSchema = new Schema({
 
 const CommentsSchema = new Schema({
   text: String,
-  author: String,
+  author: { type: "ObjectId", ref: "User" },
   createdAt: Date,
 });
 

@@ -1,4 +1,5 @@
 const express = require("express");
+const passport = require("passport");
 const {
   addComment,
   getMovieComments,
@@ -7,11 +8,12 @@ const {
 } = require("../services/commentsService");
 const { handleValidationErrors, asyncHandler } = require("../utils/validationError");
 const { body, param } = require("express-validator");
+const requireCommentOwnerOrAdmin = require("../middleware/requireCommentOwnerOrAdmin");
 
 const router = express.Router();
 
 const addCommentHandler = asyncHandler(async (req, res) => {
-  const resultComment = await addComment(req.params.movieId, req.body);
+  const resultComment = await addComment(req.params.movieId, req.user._id, req.body);
 
   if (!resultComment) {
     return res.status(404).send("movie not found");
@@ -29,7 +31,8 @@ const getMovieCommentsHandler = asyncHandler(async (req, res) => {
 });
 
 const updateCommentHandler = asyncHandler(async (req, res) => {
-  const updatedComment = await updateComment(req.params.commentId, req.body, {
+  const { text } = req.body;
+  const updatedComment = await updateComment(req.params.commentId, text, {
     new: true,
   });
 
@@ -50,23 +53,19 @@ const deleteCommentHandler = asyncHandler(async (req, res) => {
 });
 
 const commentValidationRules = {
-  post: [
-    param("movieId").isMongoId(),
-    body("text").notEmpty(),
-    body("author").notEmpty(),
-  ],
+  post: [param("movieId").isMongoId(), body("text").notEmpty()],
   get: param("movieId").isMongoId(),
   put: [
     param("movieId").isMongoId(),
     param("commentId").isMongoId(),
-    body("text").optional().notEmpty(),
-    body("author").optional().notEmpty(),
+    body("text").notEmpty(),
   ],
   delete: [param("movieId").isMongoId(), param("commentId").isMongoId()],
 };
 
 router.post(
   "/movies/:movieId/comments/",
+  passport.authenticate("bearer", { session: false }),
   commentValidationRules.post,
   handleValidationErrors,
   addCommentHandler,
@@ -81,6 +80,8 @@ router.get(
 
 router.put(
   "/movies/:movieId/comments/:commentId",
+  passport.authenticate("bearer", { session: false }),
+  requireCommentOwnerOrAdmin,
   commentValidationRules.put,
   handleValidationErrors,
   updateCommentHandler,
@@ -88,6 +89,8 @@ router.put(
 
 router.delete(
   "/movies/:movieId/comments/:commentId",
+  passport.authenticate("bearer", { session: false }),
+  requireCommentOwnerOrAdmin,
   commentValidationRules.delete,
   handleValidationErrors,
   deleteCommentHandler,

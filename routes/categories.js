@@ -8,6 +8,8 @@ const {
 } = require("../services/categoriesService");
 const { handleValidationErrors, asyncHandler } = require("../utils/validationError");
 const { body, param } = require("express-validator");
+const passport = require("passport");
+const requireAdmin = require("../middleware/requireAdmin");
 
 const router = express.Router();
 
@@ -61,6 +63,8 @@ const categoryValidationRules = {
 
 router.post(
   "/categories",
+  passport.authenticate("bearer", { session: false }),
+  requireAdmin,
   categoryValidationRules.post,
   handleValidationErrors,
   createCategoryHandler,
@@ -77,6 +81,8 @@ router.get(
 
 router.put(
   "/categories/:categoryId",
+  passport.authenticate("bearer", { session: false }),
+  requireAdmin,
   categoryValidationRules.put,
   handleValidationErrors,
   updateCategoryHandler,
@@ -84,6 +90,8 @@ router.put(
 
 router.delete(
   "/categories/:categoryId",
+  passport.authenticate("bearer", { session: false }),
+  requireAdmin,
   categoryValidationRules.delete,
   handleValidationErrors,
   deleteCategoryHandler,

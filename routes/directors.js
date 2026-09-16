@@ -8,6 +8,8 @@ const {
 } = require("../services/directorsService");
 const { handleValidationErrors, asyncHandler } = require("../utils/validationError");
 const { body, param } = require("express-validator");
+const passport = require("passport");
+const requireAdmin = require("../middleware/requireAdmin");
 
 const router = express.Router();
 
@@ -60,6 +62,8 @@ const directorValidationRules = {
 
 router.post(
   "/directors",
+  passport.authenticate("bearer", { session: false }),
+  requireAdmin,
   directorValidationRules.post,
   handleValidationErrors,
   createDirectorHandler,
@@ -76,6 +80,8 @@ router.get(
 
 router.put(
   "/directors/:directorId",
+  passport.authenticate("bearer", { session: false }),
+  requireAdmin,
   directorValidationRules.put,
   handleValidationErrors,
   updateDirectorHandler,
@@ -83,6 +89,8 @@ router.put(
 
 router.delete(
   "/directors/:directorId",
+  passport.authenticate("bearer", { session: false }),
+  requireAdmin,
   directorValidationRules.delete,
   handleValidationErrors,
   deleteDirectorHandler,

@@ -1,10 +1,10 @@
 const { Movie, Comments } = require("../models");
 
-const addComment = async (movieId, body) => {
+const addComment = async (movieId, authorId, body) => {
   const existingMovie = await Movie.findById(movieId);
 
   if (existingMovie) {
-    const comment = await Comments.create(body);
+    const comment = await Comments.create({ ...body, author: authorId });
     const movie = await Movie.findByIdAndUpdate(movieId, {
       $push: { comments: comment._id },
     });
@@ -16,11 +16,15 @@ const addComment = async (movieId, body) => {
 };
 
 const getMovieComments = async (movieId) => {
-  const movie = await Movie.findById(movieId).populate("comments");
+  const movie = await Movie.findById(movieId).populate({
+    path: "comments",
+    populate: { path: "author" },
+  });
   return movie ? movie.comments : null;
 };
-const updateComment = (commentId, body, options) => {
-  return Comments.findByIdAndUpdate(commentId, body, options);
+
+const updateComment = (commentId, text, options) => {
+  return Comments.findByIdAndUpdate(commentId, { text }, options);
 };
 
 const deleteComment = async (movieId, commentId) => {
