@@ -2,13 +2,14 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const mongoSanitize = require("express-mongo-sanitize");
+const passport = require("./config/passport");
 const moviesRouter = require("./routes/movies");
 const categoriesRouter = require("./routes/categories");
 const commentsRouter = require("./routes/comments");
 const directorsRouter = require("./routes/directors");
 const usersRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
-const mongoSanitize = require("express-mongo-sanitize");
 
 const app = express();
 const port = process.env.PORT_CONNECTION;
@@ -25,13 +26,14 @@ app.use(
 );
 
 app.use(express.json());
+app.use(passport.initialize());
+app.use(mongoSanitize());
 app.use(moviesRouter);
 app.use(categoriesRouter);
 app.use(commentsRouter);
 app.use(directorsRouter);
 app.use(usersRouter);
 app.use(authRouter);
-app.use(mongoSanitize());
 
 app.use((err, req, res, _next) => {
   console.error(err);

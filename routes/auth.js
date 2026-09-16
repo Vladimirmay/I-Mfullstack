@@ -1,6 +1,6 @@
 const express = require("express");
 const { body } = require("express-validator");
-const { loginUser, generateToken } = require("../services/authService");
+const { loginUser } = require("../services/authService");
 const { handleValidationErrors, asyncHandler } = require("../utils/validationError");
 
 const router = express.Router();
@@ -14,10 +14,9 @@ const loginUserHandler = asyncHandler(async (req, res) => {
     return res.status(401).send("Неверная почта или пароль");
   }
 
-  const token = generateToken(email);
   const { password: _password, ...userWithoutPassword } = login.toObject();
 
-  return res.status(200).json({ token, user: userWithoutPassword });
+  return res.status(200).json({ token: login.token, user: userWithoutPassword });
 });
 
 const authValidationRules = {

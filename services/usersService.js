@@ -18,7 +18,11 @@ const getUser = (userId) => {
   return User.findById(userId).lean();
 };
 
-const updateUser = (userId, body, options) => {
+const updateUser = (userId, updateFields, options) => {
+  return User.findByIdAndUpdate(userId, updateFields, options);
+};
+
+const updateInfoUser = (userId, body, options) => {
   return User.findByIdAndUpdate(userId, body, options);
 };
 
@@ -32,4 +36,5 @@ module.exports = {
   getUser,
   updateUser,
   deleteUser,
+  updateInfoUser,
 };

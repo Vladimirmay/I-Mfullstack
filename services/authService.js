@@ -19,6 +19,9 @@ const loginUser = async (email, password) => {
     return null;
   }
 
+  user.token = generateToken(email);
+  await user.save();
+
   return user;
 };
 

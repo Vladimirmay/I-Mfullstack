@@ -5,9 +5,13 @@ const {
   getUser,
   updateUser,
   deleteUser,
+  updateInfoUser,
 } = require("../services/usersService");
 const { handleValidationErrors, asyncHandler } = require("../utils/validationError");
 const { body, param } = require("express-validator");
+const passport = require("passport");
+const requireAdmin = require("../middleware/requireAdmin");
+const requireSelf = require("../middleware/requireSelf");
 
 const router = express.Router();
 
@@ -42,6 +46,23 @@ const updateUserHandler = asyncHandler(async (req, res) => {
   return res.status(200).send(updatedUser);
 });
 
+const updateInfoUserHandler = asyncHandler(async (req, res) => {
+  const { email, username } = req.body;
+  const updatedInfoUser = await updateInfoUser(
+    req.params.userId,
+    { email, username },
+    {
+      new: true,
+    },
+  );
+
+  if (!updatedInfoUser) {
+    return res.status(404).send("user not found");
+  }
+
+  return res.status(200).send(updatedInfoUser);
+});
+
 const deleteUserHandler = asyncHandler(async (req, res) => {
   const deletedUser = await deleteUser(req.params.userId);
 
@@ -54,6 +75,7 @@ const deleteUserHandler = asyncHandler(async (req, res) => {
 const userValidationRules = {
   post: [body(["email", "password"]).notEmpty()],
   put: [param("userId").isMongoId(), body(["email", "password"]).optional().notEmpty()],
+  patch: [param("userId").isMongoId(), body(["email", "username"]).optional().notEmpty()],
   get: param("userId").isMongoId(),
   delete: param("userId").isMongoId(),
 };
@@ -76,13 +98,26 @@ router.get(
 
 router.put(
   "/users/:userId",
+  passport.authenticate("bearer", { session: false }),
+  requireAdmin,
   userValidationRules.put,
   handleValidationErrors,
   updateUserHandler,
 );
 
+router.patch(
+  "/users/:userId/info",
+  passport.authenticate("bearer", { session: false }),
+  requireSelf,
+  userValidationRules.patch,
+  handleValidationErrors,
+  updateInfoUserHandler,
+);
+
 router.delete(
   "/users/:userId",
+  passport.authenticate("bearer", { session: false }),
+  requireAdmin,
   userValidationRules.delete,
   handleValidationErrors,
   deleteUserHandler,
