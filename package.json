@@ -15,7 +15,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -24,6 +24,7 @@
     "express": "^5.2.1",
     "express-mongo-sanitize": "^2.2.0",
     "express-validator": "^7.3.2",
+    "jest": "^30.5.2",
     "jsonwebtoken": "^9.0.3",
     "migrate-mongo": "^14.0.7",
     "mongodb": "^7.5.0",
@@ -31,7 +32,8 @@
     "node-cache": "^5.1.2",
     "node-dev": "^8.0.0",
     "passport": "^0.7.0",
-    "passport-http-bearer": "^1.0.1"
+    "passport-http-bearer": "^1.0.1",
+    "supertest": "^7.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
