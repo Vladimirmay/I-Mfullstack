@@ -11,6 +11,7 @@ const commentsRouter = require("./routes/comments");
 const directorsRouter = require("./routes/directors");
 const usersRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
+const favoritesRouter = require("./routes/favorites");
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use(commentsRouter);
 app.use(directorsRouter);
 app.use(usersRouter);
 app.use(authRouter);
+app.use(favoritesRouter);
 
 app.use((err, req, res, _next) => {
   console.error(err);

@@ -30,6 +30,39 @@ const deleteUser = (userId) => {
   return User.findByIdAndDelete(userId);
 };
 
+const addFavorite = (userId, movieId) => {
+  return User.findByIdAndUpdate(
+    userId,
+    { $addToSet: { favorites: movieId } },
+    { new: true },
+  );
+};
+
+const removeFavorite = (userId, movieId) => {
+  return User.findByIdAndUpdate(userId, { $pull: { favorites: movieId } }, { new: true });
+};
+
+const getFavoritesCountByTitle = async () => {
+  const rows = await User.aggregate([
+    { $unwind: "$favorites" },
+    {
+      $lookup: {
+        from: "movies",
+        localField: "favorites",
+        foreignField: "_id",
+        as: "movie",
+      },
+    },
+    { $unwind: "$movie" },
+    { $group: { _id: "$movie.title", count: { $sum: 1 } } },
+  ]);
+
+  return rows.reduce((acc, { _id, count }) => {
+    acc[_id] = count;
+    return acc;
+  }, {});
+};
+
 module.exports = {
   createUser,
   getUsers,
@@ -37,4 +70,7 @@ module.exports = {
   updateUser,
   deleteUser,
   updateInfoUser,
+  addFavorite,
+  removeFavorite,
+  getFavoritesCountByTitle,
 };

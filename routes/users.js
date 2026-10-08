@@ -6,6 +6,8 @@ const {
   updateUser,
   deleteUser,
   updateInfoUser,
+  addFavorite,
+  removeFavorite,
 } = require("../services/usersService");
 const { handleValidationErrors, asyncHandler } = require("../utils/validationError");
 const { body, param } = require("express-validator");
@@ -72,6 +74,16 @@ const deleteUserHandler = asyncHandler(async (req, res) => {
   return res.status(204).send();
 });
 
+const addFavoriteHandler = asyncHandler(async (req, res) => {
+  const updatedUser = await addFavorite(req.user._id, req.params.movieId);
+  return res.status(200).send(updatedUser);
+});
+
+const removeFavoriteHandler = asyncHandler(async (req, res) => {
+  const updatedUser = await removeFavorite(req.user._id, req.params.movieId);
+  return res.status(200).send(updatedUser);
+});
+
 const userValidationRules = {
   post: [body(["email", "password"]).notEmpty()],
   put: [param("userId").isMongoId(), body(["email", "password"]).optional().notEmpty()],
@@ -121,6 +133,22 @@ router.delete(
   userValidationRules.delete,
   handleValidationErrors,
   deleteUserHandler,
+);
+
+router.post(
+  "/users/favorites/:movieId",
+  passport.authenticate("bearer", { session: false }),
+  param("movieId").isMongoId(),
+  handleValidationErrors,
+  addFavoriteHandler,
+);
+
+router.delete(
+  "/users/favorites/:movieId",
+  passport.authenticate("bearer", { session: false }),
+  param("movieId").isMongoId(),
+  handleValidationErrors,
+  removeFavoriteHandler,
 );
 
 module.exports = router;

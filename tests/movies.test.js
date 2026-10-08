@@ -37,7 +37,9 @@ describe("/movies", () => {
   });
 
   afterAll(async () => {
-    await Movie.deleteMany({ title: /^Test Movie/ });
+    // точечное удаление по id, а не по шаблону title — другой тестовый
+    // файл может параллельно работать со своими "Test Movie ..." записями
+    await Movie.findByIdAndDelete(movieId);
     await Director.findByIdAndDelete(directorId);
     await User.deleteOne({ email: adminEmail });
     await mongoose.connection.close();
@@ -51,6 +53,12 @@ describe("/movies", () => {
       .set("Authorization", `Bearer ${token}`)
       .send(newMovie)
       .expect(201);
+
+    // POST /movies не возвращает тело созданного фильма, поэтому находим
+    // и сразу подчищаем его в рамках этого же теста
+    const created = await Movie.findOne({ title: newMovie.title });
+    expect(created).not.toBeNull();
+    await Movie.findByIdAndDelete(created._id);
   });
 
   it("GET /movies возвращает список фильмов", async () => {
