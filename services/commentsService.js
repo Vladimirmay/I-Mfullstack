@@ -1,18 +1,34 @@
+const mongoose = require("mongoose");
 const { Movie, Comments } = require("../models");
 
 const addComment = async (movieId, authorId, body) => {
   const existingMovie = await Movie.findById(movieId);
 
-  if (existingMovie) {
-    const comment = await Comments.create({ ...body, author: authorId });
-    const movie = await Movie.findByIdAndUpdate(movieId, {
-      $push: { comments: comment._id },
+  if (!existingMovie) {
+    return null;
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const [comment] = await Comments.create([{ ...body, author: authorId }], {
+      session,
     });
-    return {
-      movie,
-      comment,
-    };
-  } else return null;
+    const movie = await Movie.findByIdAndUpdate(
+      movieId,
+      { $push: { comments: comment._id } },
+      { session },
+    );
+
+    await session.commitTransaction();
+    return { movie, comment };
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 };
 
 const getMovieComments = async (movieId) => {
@@ -28,13 +44,28 @@ const updateComment = (commentId, text, options) => {
 };
 
 const deleteComment = async (movieId, commentId) => {
-  const deletedComment = await Comments.findByIdAndDelete(commentId);
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  if (deletedComment) {
-    await Movie.findByIdAndUpdate(movieId, { $pull: { comments: commentId } });
+  try {
+    const deletedComment = await Comments.findByIdAndDelete(commentId, { session });
+
+    if (deletedComment) {
+      await Movie.findByIdAndUpdate(
+        movieId,
+        { $pull: { comments: commentId } },
+        { session },
+      );
+    }
+
+    await session.commitTransaction();
+    return deletedComment;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  return deletedComment;
 };
 
 module.exports = {
